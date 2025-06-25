@@ -39,7 +39,7 @@ webhook-tpl: |
 # 证书申请配置
 acme:
   email: 申请证书邮箱地址（可以收到域名证书相关通知）
-  data-dir: 申请的证书文件保存目录（绝对路径）
+  data-dir: 申请的证书文件保存目录（绝对路径），默认保存位置是：`/var/lib/oss-auto-cert`
   expired-early: 30 # 证书提前过期时间，单位：天（默认提前15天过期，推荐提前30天）
 # 阿里云OSS配置 Bucket信息列表
 buckets:
@@ -116,7 +116,7 @@ webhook-tpl: |
 
   - ACME_EMAIL：申请证书邮箱地址（可以收到域名证书相关通知）
 
-  - ACME_DATA_DIR：申请的证书文件保存目录（绝对路径）
+  - ACME_DATA_DIR：申请的证书文件保存目录（绝对路径），默认保存位置是：`/var/lib/oss-auto-cert`
 
   - ACME_EXPIRED_EARLY：证书提前过期时间，单位：天（默认提前15天过期，推荐提前30天）
 
@@ -176,13 +176,14 @@ services:
       - -log-level=warn
     volumes:
       - $PWD/config.yaml:/etc/oss-auto-cert/config.yaml
-      - $PWD/certs:/var/lib/oss-auto-cert
+      - $PWD/certs:/data/certs
     restart: unless-stopped
     environment:
       OSS_ACCESS_KEY_ID: xxx
       OSS_ACCESS_KEY_SECRET: xxx
       ACME_EMAIL: xxxxx@xxxxxx.com
-      ACME_DATA_DIR: /data
+      # 通过环境变量来设置证书持久化路径，默认保存位置是：`/var/lib/oss-auto-cert`
+      ACME_DATA_DIR: /data/certs
       ACME_EXPIRED_EARLY: 30
 
 ```
