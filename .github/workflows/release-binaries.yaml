@@ -16,7 +16,7 @@ jobs:
       CGO_ENABLED: 0
       OUTPUT_NAME: oss-auto-cert
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: 'master'
           fetch-depth: 0
