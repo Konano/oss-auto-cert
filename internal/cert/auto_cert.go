@@ -85,15 +85,17 @@ func (c *AutoCert) ScheduleRun() {
 		}
 	}()
 
-	tick := time.NewTicker(6 * time.Hour)
-	for {
-		select {
-		case <-c.ctx.Done():
-			return
-		case <-tick.C:
-			go c.run()
+	go func() {
+		tick := time.NewTicker(6 * time.Hour)
+		for {
+			select {
+			case <-c.ctx.Done():
+				return
+			case <-tick.C:
+				go c.run()
+			}
 		}
-	}
+	}()
 }
 
 func (c *AutoCert) Stop() {
