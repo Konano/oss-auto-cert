@@ -15,10 +15,9 @@ LABEL maintainer="nekoimi <nekoimime@gmail.com>"
 
 COPY --from=builder /build/oss-auto-cert   /usr/bin/oss-auto-cert
 
-RUN apk add tzdata \
+RUN apk add --no-cache tzdata \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && echo "Asia/Shanghai" > /etc/timezone \
-    && apk del tzdata
+    && echo "Asia/Shanghai" > /etc/timezone
 
 WORKDIR /workspace
 
