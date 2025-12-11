@@ -6,6 +6,10 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"fmt"
+	"os"
+	"path/filepath"
+	"sync"
+
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
 	"github.com/go-acme/lego/v4/certcrypto"
@@ -15,9 +19,6 @@ import (
 	"github.com/nekoimi/oss-auto-cert/config"
 	"github.com/nekoimi/oss-auto-cert/pkg/files"
 	oss_provider "github.com/nekoimi/oss-auto-cert/providers/oss"
-	"os"
-	"path/filepath"
-	"sync"
 )
 
 // DefaultSaveDir 默认证书保存目录

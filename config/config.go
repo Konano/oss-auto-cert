@@ -1,12 +1,13 @@
 package config
 
 import (
-	"github.com/charmbracelet/log"
-	"gopkg.in/yaml.v3"
 	"io"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/charmbracelet/log"
+	"gopkg.in/yaml.v3"
 )
 
 const (

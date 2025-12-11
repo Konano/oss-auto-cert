@@ -3,10 +3,11 @@ package oss
 import (
 	"bytes"
 	"fmt"
+	"strings"
+
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
 	"github.com/go-acme/lego/v4/challenge/http01"
-	"strings"
 )
 
 type HTTPProvider struct {

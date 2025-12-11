@@ -2,13 +2,14 @@ package main
 
 import (
 	"flag"
-	"github.com/charmbracelet/log"
-	"github.com/nekoimi/oss-auto-cert/config"
-	"github.com/nekoimi/oss-auto-cert/core"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/charmbracelet/log"
+	"github.com/nekoimi/oss-auto-cert/config"
+	"github.com/nekoimi/oss-auto-cert/core"
 )
 
 var (

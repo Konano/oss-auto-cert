@@ -1,13 +1,14 @@
 package cdn
 
 import (
+	"os"
+	"strconv"
+	"testing"
+
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
 	"github.com/nekoimi/oss-auto-cert/pkg/dto"
 	"github.com/nekoimi/oss-auto-cert/pkg/utils"
-	"os"
-	"strconv"
-	"testing"
 )
 
 func TestService_UpgradeCert(t *testing.T) {

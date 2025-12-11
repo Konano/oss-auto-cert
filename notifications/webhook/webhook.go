@@ -2,11 +2,12 @@ package webhook
 
 import (
 	"bytes"
-	"github.com/charmbracelet/log"
 	"html/template"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/charmbracelet/log"
 )
 
 const DefaultWxWorkTpl = `

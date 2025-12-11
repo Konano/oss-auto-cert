@@ -1,10 +1,11 @@
 package alioss
 
 import (
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/nekoimi/oss-auto-cert/config"
 	"os"
 	"testing"
+
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/nekoimi/oss-auto-cert/config"
 )
 
 func TestBucketService_UpgradeCert(t *testing.T) {
