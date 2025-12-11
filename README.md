@@ -150,6 +150,8 @@ dockerhub: `nekoimi/oss-auto-cert:latest`
 
 ghcr.io: `ghcr.io/nekoimi/oss-auto-cert:latest`
 
+国内阿里云: `registry.cn-hangzhou.aliyuncs.com/nekoimi/oss-auto-cert:latest`
+
 ```shell
 # 运行例子:
 docker run -d --rm -v $PWD/config.yaml:/etc/oss-auto-cert/config.yaml -e OSS_ACCESS_KEY_ID=xxx -e OSS_ACCESS_KEY_SECRET=xxx  ghcr.io/nekoimi/oss-auto-cert:latest
