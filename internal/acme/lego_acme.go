@@ -6,32 +6,33 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"fmt"
+	"os"
+	"path/filepath"
+	"sync"
+
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
-	"github.com/nekoimi/oss-auto-cert/config"
-	"github.com/nekoimi/oss-auto-cert/pkg/files"
-	oss_provider "github.com/nekoimi/oss-auto-cert/providers/oss"
-	"os"
-	"path/filepath"
-	"sync"
+	oss_provider "github.com/nekoimi/oss-auto-cert/internal/acme/providers/oss"
+	"github.com/nekoimi/oss-auto-cert/internal/config"
+	"github.com/nekoimi/oss-auto-cert/pkg/utils"
 )
 
 // DefaultSaveDir 默认证书保存目录
 // 保存路径格式: {SaveDir}/{domain}/
 const DefaultSaveDir = "/var/lib/oss-auto-cert"
 
-type LegoService struct {
+type LegoAcme struct {
 	cmux    *sync.Mutex
 	saveDir string
 	user    registration.User
 	client  *lego.Client
 }
 
-func NewLego(acme config.Acme) *LegoService {
+func NewLegoAcme(acme config.Acme) *LegoAcme {
 	user := newUser(acme.Email)
 	c := lego.NewConfig(user)
 
@@ -52,6 +53,7 @@ func NewLego(acme config.Acme) *LegoService {
 	client, err := lego.NewClient(c)
 	if err != nil {
 		log.Fatalf(err.Error())
+		return nil
 	}
 
 	reg, err := client.Registration.Register(registration.RegisterOptions{
@@ -68,7 +70,7 @@ func NewLego(acme config.Acme) *LegoService {
 		saveDir = DefaultSaveDir
 	}
 
-	return &LegoService{
+	return &LegoAcme{
 		cmux:    new(sync.Mutex),
 		saveDir: saveDir,
 		user:    user,
@@ -77,8 +79,8 @@ func NewLego(acme config.Acme) *LegoService {
 }
 
 // Obtain 申请证书
-func (lg *LegoService) Obtain(bucket string, domain string, ossClient *oss.Client) (*certificate.Resource, error) {
-	provider, err := oss_provider.NewHTTPProvider(bucket, ossClient)
+func (lg *LegoAcme) Obtain(bucket string, domain string, ossClient *oss.Client) (*certificate.Resource, error) {
+	provider, err := oss_provider.NewAliYunOssHTTPProvider(bucket, ossClient)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +93,7 @@ func (lg *LegoService) Obtain(bucket string, domain string, ossClient *oss.Clien
 
 	// 检查本地是否存在证书
 	localCert := filepath.Join(lg.saveDir, domain, "cert.crt")
-	ok, b := files.ReadIfExists(localCert)
+	ok, b := utils.ReadIfExists(localCert)
 	if ok {
 		// 续签证书
 		renew := certificate.Resource{
@@ -101,14 +103,14 @@ func (lg *LegoService) Obtain(bucket string, domain string, ossClient *oss.Clien
 
 		// 尝试读取证书签名CSR
 		localCsr := filepath.Join(lg.saveDir, domain, "cert.csr")
-		ok, b = files.ReadIfExists(localCsr)
+		ok, b = utils.ReadIfExists(localCsr)
 		if ok {
 			renew.CSR = b
 		}
 
 		// 尝试读取颁发者证书
 		localIssuerCert := filepath.Join(lg.saveDir, domain, "cert-issuer.crt")
-		ok, b = files.ReadIfExists(localIssuerCert)
+		ok, b = utils.ReadIfExists(localIssuerCert)
 		if ok {
 			renew.IssuerCertificate = b
 		}
@@ -142,19 +144,19 @@ func (lg *LegoService) Obtain(bucket string, domain string, ossClient *oss.Clien
 	return cert, nil
 }
 
-func (lg *LegoService) Stop() {
+func (lg *LegoAcme) Stop() {
 	err := lg.client.Registration.DeleteRegistration()
 	if err != nil {
 		log.Errorf(err.Error())
 	}
 }
 
-func (lg *LegoService) save(cert *certificate.Resource) {
+func (lg *LegoAcme) save(cert *certificate.Resource) {
 	lg.cmux.Lock()
 	defer lg.cmux.Unlock()
 
 	baseDir := filepath.Join(lg.saveDir, cert.Domain)
-	if exists, err := files.Exists(baseDir); err != nil {
+	if exists, err := utils.Exists(baseDir); err != nil {
 		log.Errorf(err.Error())
 		return
 	} else if !exists {
@@ -173,7 +175,7 @@ func (lg *LegoService) save(cert *certificate.Resource) {
 	data["cert.csr"] = cert.CSR
 
 	for name, raw := range data {
-		if err := files.BackupIfExists(filepath.Join(baseDir, name)); err != nil {
+		if err := utils.BackupIfExists(filepath.Join(baseDir, name)); err != nil {
 			log.Errorf(err.Error())
 		} else {
 			err = os.WriteFile(filepath.Join(baseDir, name), raw, os.ModePerm)

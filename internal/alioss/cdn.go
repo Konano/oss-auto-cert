@@ -1,20 +1,21 @@
-package cdn
+package alioss
 
 import (
 	"fmt"
+
 	cdn20180510 "github.com/alibabacloud-go/cdn-20180510/v5/client"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
-	"github.com/nekoimi/oss-auto-cert/pkg/dto"
+	"github.com/nekoimi/oss-auto-cert/internal/types"
 )
 
-type Service struct {
+type CDNService struct {
 	client *cdn20180510.Client
 }
 
-func New(access oss.Credentials) *Service {
+func NewCDNService(access oss.Credentials) *CDNService {
 	c := &openapi.Config{
 		AccessKeyId:     tea.String(access.GetAccessKeyID()),
 		AccessKeySecret: tea.String(access.GetAccessKeySecret()),
@@ -27,14 +28,14 @@ func New(access oss.Credentials) *Service {
 		log.Fatalf(err.Error())
 	}
 
-	return &Service{
+	return &CDNService{
 		client: client,
 	}
 }
 
 // IsApplySSL 域名是否应用CDN加速SSL
 // 域名CDN有效，SSL有效
-func (d *Service) IsApplySSL(domain string) (bool, error) {
+func (d *CDNService) IsApplySSL(domain string) (bool, error) {
 	// 查询加速域名信息
 	req := new(cdn20180510.DescribeCdnDomainDetailRequest)
 	req.DomainName = tea.String(domain)
@@ -68,7 +69,7 @@ func (d *Service) IsApplySSL(domain string) (bool, error) {
 }
 
 // UpgradeCert 更新CDN加速域名证书
-func (d *Service) UpgradeCert(domain string, info *dto.CertInfo) error {
+func (d *CDNService) UpgradeCert(domain string, info *types.CertInfo) error {
 	if b, err := d.IsApplySSL(domain); err != nil {
 		return err
 	} else if !b {

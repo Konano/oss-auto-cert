@@ -2,11 +2,12 @@ package utils
 
 import (
 	"bytes"
-	"github.com/charmbracelet/log"
-	"github.com/google/uuid"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/charmbracelet/log"
+	"github.com/google/uuid"
 )
 
 var timeLayouts []string

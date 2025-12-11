@@ -3,25 +3,26 @@ package oss
 import (
 	"bytes"
 	"fmt"
+	"strings"
+
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
 	"github.com/go-acme/lego/v4/challenge/http01"
-	"strings"
 )
 
-type HTTPProvider struct {
+type AliYunOssHTTPProvider struct {
 	bucket    string
 	ossClient *oss.Client
 }
 
-func NewHTTPProvider(bucket string, ossClient *oss.Client) (*HTTPProvider, error) {
-	return &HTTPProvider{
+func NewAliYunOssHTTPProvider(bucket string, ossClient *oss.Client) (*AliYunOssHTTPProvider, error) {
+	return &AliYunOssHTTPProvider{
 		bucket:    bucket,
 		ossClient: ossClient,
 	}, nil
 }
 
-func (s *HTTPProvider) Present(domain, token, keyAuth string) error {
+func (s *AliYunOssHTTPProvider) Present(domain, token, keyAuth string) error {
 	bucket, err := s.ossClient.Bucket(s.bucket)
 	if err != nil {
 		return fmt.Errorf("oss: bucket异常: %w", err)
@@ -40,7 +41,7 @@ func (s *HTTPProvider) Present(domain, token, keyAuth string) error {
 	return nil
 }
 
-func (s *HTTPProvider) CleanUp(domain, token, keyAuth string) error {
+func (s *AliYunOssHTTPProvider) CleanUp(domain, token, keyAuth string) error {
 	bucket, err := s.ossClient.Bucket(s.bucket)
 	if err != nil {
 		return fmt.Errorf("oss: bucket异常: %w", err)

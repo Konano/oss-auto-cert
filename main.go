@@ -1,14 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"github.com/charmbracelet/log"
-	"github.com/nekoimi/oss-auto-cert/config"
-	"github.com/nekoimi/oss-auto-cert/core"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
+
+	"github.com/charmbracelet/log"
+	"github.com/nekoimi/oss-auto-cert/internal/cert"
+	"github.com/nekoimi/oss-auto-cert/internal/config"
 )
 
 var (
@@ -32,27 +33,24 @@ func init() {
 
 	conf.LoadOptions()
 	conf.LoadOptionsFromEnv()
-
-	watchSig()
-}
-
-func watchSig() {
 	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 }
 
 func main() {
-	m := core.New(conf)
-	go m.Run()
-	tick := time.NewTicker(6 * time.Hour)
-	for {
-		select {
-		case <-sig:
-			m.Stop()
-			tick.Stop()
-			log.Infof("Exit.")
-			os.Exit(0)
-		case <-tick.C:
-			go m.Run()
-		}
+	ctx, cancel := context.WithCancel(context.Background())
+	m, err := cert.NewAutoCert(ctx, conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	m.ScheduleRun()
+
+	// wait
+	select {
+	case <-sig:
+		cancel()
+		m.Stop()
+		log.Infof("Exit.")
+		os.Exit(0)
 	}
 }

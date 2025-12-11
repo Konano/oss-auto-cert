@@ -1,10 +1,11 @@
 package alioss
 
 import (
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/nekoimi/oss-auto-cert/config"
 	"os"
 	"testing"
+
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/nekoimi/oss-auto-cert/internal/config"
 )
 
 func TestBucketService_UpgradeCert(t *testing.T) {
@@ -20,7 +21,7 @@ func TestBucketService_UpgradeCert(t *testing.T) {
 	domain := os.Getenv("TEST_DOMAIN")
 	certID := os.Getenv("TEST_CERT_ID")
 
-	b, err := New(config.Bucket{
+	b, err := NewAliYunOss(config.Bucket{
 		Name:     name,
 		Endpoint: endpoint,
 	}, access)

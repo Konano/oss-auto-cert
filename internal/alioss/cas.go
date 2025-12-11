@@ -1,24 +1,25 @@
-package cas
+package alioss
 
 import (
 	"bytes"
 	"fmt"
+
 	cas20200407 "github.com/alibabacloud-go/cas-20200407/v2/client"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
 	"github.com/go-acme/lego/v4/certificate"
-	"github.com/nekoimi/oss-auto-cert/config"
-	"github.com/nekoimi/oss-auto-cert/pkg/dto"
+	"github.com/nekoimi/oss-auto-cert/internal/config"
+	"github.com/nekoimi/oss-auto-cert/internal/types"
 	"github.com/nekoimi/oss-auto-cert/pkg/utils"
 )
 
-type Service struct {
+type CasService struct {
 	client *cas20200407.Client
 }
 
-func New(access oss.Credentials) *Service {
+func NewCasService(access oss.Credentials) *CasService {
 	client, err := cas20200407.NewClient(&openapi.Config{
 		AccessKeyId:     tea.String(access.GetAccessKeyID()),
 		AccessKeySecret: tea.String(access.GetAccessKeySecret()),
@@ -30,13 +31,13 @@ func New(access oss.Credentials) *Service {
 		log.Fatalf(err.Error())
 	}
 
-	return &Service{
+	return &CasService{
 		client: client,
 	}
 }
 
 // GetDetail 根据DI获取证书详情
-func (s *Service) GetDetail(certID int64) (*cas20200407.GetUserCertificateDetailResponseBody, error) {
+func (s *CasService) GetDetail(certID int64) (*cas20200407.GetUserCertificateDetailResponseBody, error) {
 	request := new(cas20200407.GetUserCertificateDetailRequest)
 	request.SetCertId(certID)
 	resp, err := s.client.GetUserCertificateDetail(request)
@@ -52,7 +53,7 @@ func (s *Service) GetDetail(certID int64) (*cas20200407.GetUserCertificateDetail
 }
 
 // IsExpired 检查证书是否过期
-func (s *Service) IsExpired(certID int64) (bool, error) {
+func (s *CasService) IsExpired(certID int64) (bool, error) {
 	detail, err := s.GetDetail(certID)
 	if err != nil {
 		return false, err
@@ -69,7 +70,7 @@ func (s *Service) IsExpired(certID int64) (bool, error) {
 }
 
 // Upload 上传证书到 证书管理服务
-func (s *Service) Upload(cert *certificate.Resource) (*dto.CertInfo, error) {
+func (s *CasService) Upload(cert *certificate.Resource) (*types.CertInfo, error) {
 	name := utils.ShortDomain(cert.Domain) + "-" + utils.SplitFirst(utils.UUID(), "-")
 
 	req := new(cas20200407.UploadUserCertificateRequest)
@@ -92,7 +93,7 @@ func (s *Service) Upload(cert *certificate.Resource) (*dto.CertInfo, error) {
 	upload := resp.Body
 	log.Infof("上传证书成功响应：%s", upload)
 
-	return &dto.CertInfo{
+	return &types.CertInfo{
 		ID:     *upload.CertId,
 		Name:   name,
 		Domain: cert.Domain,
