@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine as builder
+FROM golang:1.23-alpine as builder
 
 ENV CGO_ENABLED=0
 ENV GOOS=linux
@@ -15,10 +15,9 @@ LABEL maintainer="nekoimi <nekoimime@gmail.com>"
 
 COPY --from=builder /build/oss-auto-cert   /usr/bin/oss-auto-cert
 
-RUN apk add tzdata \
+RUN apk add --no-cache tzdata \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && echo "Asia/Shanghai" > /etc/timezone \
-    && apk del tzdata
+    && echo "Asia/Shanghai" > /etc/timezone
 
 WORKDIR /workspace
 
