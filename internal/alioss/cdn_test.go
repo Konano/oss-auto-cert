@@ -1,4 +1,4 @@
-package cdn
+package alioss
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
-	"github.com/nekoimi/oss-auto-cert/pkg/dto"
+	"github.com/nekoimi/oss-auto-cert/internal/types"
 	"github.com/nekoimi/oss-auto-cert/pkg/utils"
 )
 
@@ -24,7 +24,7 @@ func TestService_UpgradeCert(t *testing.T) {
 	domain := os.Getenv("TEST_DOMAIN")
 	certID := os.Getenv("TEST_CERT_ID")
 
-	c := New(access)
+	c := NewCDNService(access)
 
 	int64Str := utils.SplitFirst(certID, "-")
 	int64ID, err := strconv.ParseInt(int64Str, 10, 64)
@@ -32,7 +32,7 @@ func TestService_UpgradeCert(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	err = c.UpgradeCert(domain, &dto.CertInfo{
+	err = c.UpgradeCert(domain, &types.CertInfo{
 		ID:     int64ID,
 		Name:   "",
 		Region: "",

@@ -6,30 +6,30 @@ import (
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
-	"github.com/nekoimi/oss-auto-cert/config"
-	"github.com/nekoimi/oss-auto-cert/pkg/dto"
+	"github.com/nekoimi/oss-auto-cert/internal/config"
+	"github.com/nekoimi/oss-auto-cert/internal/types"
 	"github.com/nekoimi/oss-auto-cert/pkg/utils"
 )
 
-type BucketService struct {
+type AliYunOss struct {
 	name   string
 	Client *oss.Client
 }
 
-func New(bucket config.Bucket, access oss.Credentials) (*BucketService, error) {
+func NewAliYunOss(bucket config.Bucket, access oss.Credentials) (*AliYunOss, error) {
 	client, err := oss.New(bucket.Endpoint, access.GetAccessKeyID(), access.GetAccessKeySecret())
 	if err != nil {
 		return nil, fmt.Errorf("创建oss client异常: %w", err)
 	}
 
-	return &BucketService{
+	return &AliYunOss{
 		name:   bucket.Name,
 		Client: client,
 	}, nil
 }
 
 // GetCert 获取bucket下自定义域名证书ID信息
-func (b *BucketService) GetCert() (*dto.CertInfo, error) {
+func (b *AliYunOss) GetCert() (*types.CertInfo, error) {
 	// 获取bucket全部自定义域名列表
 	result, err := b.Client.ListBucketCname(b.name)
 	if err != nil {
@@ -72,7 +72,7 @@ func (b *BucketService) GetCert() (*dto.CertInfo, error) {
 		return nil, err
 	}
 
-	return &dto.CertInfo{
+	return &types.CertInfo{
 		ID:     int64ID,
 		Region: utils.SplitGetN(certID, "-", 2, 2),
 		Domain: cname.Domain,
@@ -80,7 +80,7 @@ func (b *BucketService) GetCert() (*dto.CertInfo, error) {
 }
 
 // UpgradeCert 更新域名绑定的证书
-func (b *BucketService) UpgradeCert(domain string, certID string) error {
+func (b *AliYunOss) UpgradeCert(domain string, certID string) error {
 	log.Debugf("更新域名(%s)证书：%s", domain, certID)
 
 	putCname := oss.PutBucketCname{

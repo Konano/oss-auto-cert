@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-const DefaultWxWorkTpl = `
+const defaultWxWorkTpl = `
 	{
 		"msgtype": "text",
 		"text": {
@@ -19,7 +19,7 @@ const DefaultWxWorkTpl = `
 	}
 `
 
-type Notify struct {
+type TplWebHook struct {
 	webhook string
 	tpl     *template.Template
 }
@@ -28,21 +28,21 @@ type TplData struct {
 	Message string
 }
 
-func New(webhook string, webhookTpl string) *Notify {
+func NewTplWebHook(webhook string, webhookTpl string) *TplWebHook {
 	if webhookTpl == "" {
-		webhookTpl = DefaultWxWorkTpl
+		webhookTpl = defaultWxWorkTpl
 	}
 	tpl, err := template.New("webhook").Parse(webhookTpl)
 	if err != nil {
 		log.Fatalf("创建Webhook渲染模版异常: %s", err.Error())
 	}
-	return &Notify{
+	return &TplWebHook{
 		webhook: webhook,
 		tpl:     tpl,
 	}
 }
 
-func (n *Notify) Notify(message string) {
+func (n *TplWebHook) SendHook(message string) {
 	go func() {
 		// 发送文本消息
 		data := TplData{
