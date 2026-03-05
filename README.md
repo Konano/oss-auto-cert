@@ -29,7 +29,10 @@
 ### 前置要求
 
 - 阿里云 Access Key ID 和 Access Key Secret
-- 具有访问 OSS、CDN、CAS 服务权限的 RAM 账号
+- 具有下列权限的阿里云 RAM 账号：
+  - `AliyunOSSFullAccess` - OSS 管理权限
+  - `AliyunCDNFullAccess` - CDN 管理权限
+  - `AliyunCASFullAccess` - 证书管理服务权限
 
 ### 1. 准备环境变量
 
@@ -173,14 +176,6 @@ docker run -d --rm \
 
 - [完整使用文档](docs/usage.md)
 - [开发规范](AGENTS.md)
-
-## 权限要求
-
-阿里云 RAM 账号需要以下权限：
-
-- `AliyunOSSFullAccess` - OSS 管理权限
-- `AliyunCDNFullAccess` - CDN 管理权限
-- `AliyunCASFullAccess` - 证书管理服务权限
 
 ## 开源协议
 
