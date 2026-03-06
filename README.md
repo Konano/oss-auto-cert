@@ -185,3 +185,8 @@ docker run -d --rm \
 
 - [go-acme/lego](https://github.com/go-acme/lego) - Let's Encrypt ACME 客户端
 - [阿里云 OpenAPI](https://api.aliyun.com)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/image?repos=nekoimi/oss-auto-cert&type=date&legend=top-left)](https://www.star-history.com/?repos=nekoimi%2Foss-auto-cert&type=date&legend=top-left)
+
