@@ -1,6 +1,6 @@
 module github.com/nekoimi/oss-auto-cert
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/alibabacloud-go/cas-20200407/v2 v2.3.0
@@ -27,7 +27,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/charmbracelet/lipgloss v0.10.0 // indirect
 	github.com/clbanning/mxj/v2 v2.5.5 // indirect
-	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/text v0.2.0 // indirect
