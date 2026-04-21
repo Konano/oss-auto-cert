@@ -72,7 +72,7 @@ func (conf *Config) LoadOptions() {
 		log.Fatalf("读取配置文件 %s 出错: %s", conf.Path, err.Error())
 	}
 
-	err = yaml.Unmarshal(bts, &conf)
+	err = yaml.Unmarshal(bts, conf)
 	if err != nil {
 		log.Fatalf("读取配置文件 %s 出错: %s", conf.Path, err.Error())
 	}
