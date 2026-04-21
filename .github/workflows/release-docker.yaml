@@ -51,10 +51,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
+          # images: |
+          #   ${{ github.repository }}
+          #   ghcr.io/${{ github.repository }}
+          #   registry.cn-hangzhou.aliyuncs.com/${{ github.repository }}
           images: |
-            ${{ github.repository }}
             ghcr.io/${{ github.repository }}
-            registry.cn-hangzhou.aliyuncs.com/${{ github.repository }}
           tags: |
             type=raw,value=latest
             type=semver,pattern={{version}}
