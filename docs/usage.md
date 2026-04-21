@@ -54,9 +54,6 @@ export OSS_ACCESS_KEY_SECRET="your-access-key-secret"
 创建 `config.yaml`：
 
 ```yaml
-# 通知 Webhook（可选）
-webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxx
-
 # 证书配置
 acme:
   email: your-email@example.com
@@ -69,6 +66,9 @@ buckets:
     endpoint: oss-cn-hangzhou.aliyuncs.com
   - name: my-bucket-2
     endpoint: oss-cn-beijing.aliyuncs.com
+
+# 通知 Webhook（可选）
+webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxx
 ```
 
 ### 4. 运行
@@ -96,19 +96,6 @@ docker run -d --rm \
 配置文件支持 YAML 格式，完整配置示例：
 
 ```yaml
-# 消息通知 Webhook 地址
-webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxx-xxxxx-xxxxx
-
-# Webhook 请求体模板（可选）
-# 默认使用企业微信格式，支持 Go 模板语法
-webhook-tpl: |
-  {
-    "msgtype": "text",
-    "text": {
-      "content": "{{ .Message }}"
-    }
-  }
-
 # ACME/Let's Encrypt 配置
 acme:
   # 申请证书邮箱（必填）
@@ -128,6 +115,19 @@ buckets:
     endpoint: oss-cn-beijing.aliyuncs.com
   - name: bucket-name-3
     endpoint: oss-cn-shenzhen.aliyuncs.com
+
+# 消息通知 Webhook 地址（可选）
+webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxx-xxxxx-xxxxx
+
+# Webhook 请求体模板（可选）
+# 默认使用企业微信格式，支持 Go 模板语法
+webhook-tpl: |
+  {
+    "msgtype": "text",
+    "text": {
+      "content": "{{ .Message }}"
+    }
+  }
 ```
 
 ### 环境变量配置
@@ -141,7 +141,6 @@ buckets:
 | `ACME_EMAIL` | 证书申请邮箱 | ❌ |
 | `ACME_DATA_DIR` | 证书存储目录 | ❌ |
 | `ACME_EXPIRED_EARLY` | 提前续期天数 | ❌ |
-| `DEBUG` | 调试模式（true/false） | ❌ |
 
 ### 命令行参数
 
@@ -228,6 +227,7 @@ After=network.target local-fs.target
 
 [Service]
 Type=simple
+; WorkingDirectory=/usr/bin/
 Environment="OSS_ACCESS_KEY_ID=your-key-id"
 Environment="OSS_ACCESS_KEY_SECRET=your-key-secret"
 ExecStart=/usr/bin/oss-auto-cert -config=/etc/oss-auto-cert/config.yaml
@@ -248,10 +248,10 @@ After=default.target
 
 [Service]
 Type=simple
-WorkingDirectory=/usr/bin/
+; WorkingDirectory=/usr/bin/
 Environment="OSS_ACCESS_KEY_ID=your-key-id"
 Environment="OSS_ACCESS_KEY_SECRET=your-key-secret"
-ExecStart=/usr/bin/oss-auto-cert
+ExecStart=/usr/bin/oss-auto-cert -config=/etc/oss-auto-cert/config.yaml
 Restart=always
 RestartSec=10
 
@@ -368,11 +368,7 @@ A: 默认存储在 `/var/lib/oss-auto-cert`，可通过 `acme.data-dir` 或 `ACM
 
 ### Q: 如何手动触发证书更新？
 
-A: 临时设置 `DEBUG=true` 环境变量并重启服务，或使用 `--log-level=debug` 查看详细日志。
-
-## 许可证
-
-[LICENSE](LICENSE)
+A: 临时设置 `DEBUG=true` 环境变量并重启服务。
 
 ## 相关链接
 

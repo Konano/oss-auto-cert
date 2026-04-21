@@ -2,6 +2,8 @@
 
 基于 Let's Encrypt 实现阿里云 OSS/CDN SSL 证书自动续期和管理。
 
+本项目是基于 `nekoimi/oss-auto-cert` 的自改项目。
+
 ## 功能特性
 
 - **自动检测** - 定时检测 OSS 自定义域名证书过期情况
@@ -19,13 +21,7 @@
 - 阿里云 CDN 加速域名
 - 阿里云证书管理服务 (CAS)
 
-## 如何使用
-
-本项目是基于 nekoimi/oss-auto-cert 的自改项目。
-
-如果需要使用的话请自行使用 go build 编译，或者前往 Release 获取二进制文件。
-
-<!-- ## 快速开始
+## 快速开始
 
 ### 前置要求
 
@@ -80,12 +76,13 @@ version: "3.8"
 services:
   oss-auto-cert:
     image: ghcr.io/konano/oss-auto-cert:latest
+    container_name: oss-auto-cert
+    restart: unless-stopped
     volumes:
       - ./config.yaml:/etc/oss-auto-cert/config.yaml
     environment:
       OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID}
       OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET}
-    restart: unless-stopped
 ```
 
 ```bash
@@ -97,22 +94,10 @@ docker-compose up -d
 ### 完整配置示例
 
 ```yaml
-# 消息通知 Webhook 地址
-webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxx
-
-# Webhook 请求体模板（可选，默认企业微信格式）
-webhook-tpl: |
-  {
-    "msgtype": "text",
-    "text": {
-      "content": "{{ .Message }}"
-    }
-  }
-
 # ACME/Let's Encrypt 配置
 acme:
   email: admin@example.com              # 申请证书邮箱（必填）
-  data-dir: /var/lib/oss-auto-cert     # 证书保存目录
+  data-dir: /var/lib/oss-auto-cert      # 证书保存目录
   expired-early: 30                     # 提前续期天数（默认15）
 
 # OSS Bucket 配置列表
@@ -121,6 +106,19 @@ buckets:
     endpoint: oss-cn-hangzhou.aliyuncs.com
   - name: bucket-name-2
     endpoint: oss-cn-beijing.aliyuncs.com
+
+# 消息通知 Webhook 地址（可选）
+webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxx
+
+# Webhook 请求体模板（可选）
+# 默认使用企业微信格式，支持 Go 模板语法
+webhook-tpl: |
+  {
+    "msgtype": "text",
+    "text": {
+      "content": "{{ .Message }}"
+    }
+  }
 ```
 
 ### 环境变量
@@ -143,11 +141,11 @@ buckets:
 
 ### Docker 镜像
 
-| 镜像源 | 地址 |
+<!-- | 镜像源 | 地址 |
 |--------|------|
 | Docker Hub | `konano/oss-auto-cert:latest` |
 | GitHub Container Registry | `ghcr.io/konano/oss-auto-cert:latest` |
-| 阿里云（国内） | `registry.cn-hangzhou.aliyuncs.com/konano/oss-auto-cert:latest` |
+| 阿里云（国内） | `registry.cn-hangzhou.aliyuncs.com/konano/oss-auto-cert:latest` | -->
 
 **持久化证书：**
 
@@ -177,11 +175,7 @@ docker run -d --rm \
 - [完整使用文档](docs/usage.md)
 - [开发规范](AGENTS.md)
 
-## 开源协议
-
-[LICENSE](LICENSE)
-
 ## 相关项目
 
 - [go-acme/lego](https://github.com/go-acme/lego) - Let's Encrypt ACME 客户端
-- [阿里云 OpenAPI](https://api.aliyun.com) -->
+- [阿里云 OpenAPI](https://api.aliyun.com)
