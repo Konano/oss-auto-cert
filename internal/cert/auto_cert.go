@@ -106,11 +106,9 @@ func (c *AutoCert) Stop() {
 }
 
 func (c *AutoCert) run() {
-	if c.running.Load() {
+	if !c.running.CompareAndSwap(false, true) {
 		return
 	}
-
-	c.running.Store(true)
 	defer func() {
 		c.running.Store(false)
 	}()
