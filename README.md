@@ -1,8 +1,5 @@
 # 阿里云 OSS 证书自动化工具
 
-[![GitHub Release](https://img.shields.io/github/release/nekoimi/oss-auto-cert.svg)](https://github.com/nekoimi/oss-auto-cert/releases)
-[![License](https://img.shields.io/github/license/nekoimi/oss-auto-cert.svg)](LICENSE)
-
 基于 Let's Encrypt 实现阿里云 OSS/CDN SSL 证书自动续期和管理。
 
 ## 功能特性
@@ -17,14 +14,18 @@
 
 借助 Let's Encrypt 证书，使用阿里云 OSS API、证书管理服务 API (CAS) 和 CDN API 实现 OSS 自定义域名证书的自动更新。
 
-![oss-auto-cert.png](oss-auto-cert.png)
-
 **证书更新目标资源：**
 - 阿里云 OSS 对象存储
 - 阿里云 CDN 加速域名
 - 阿里云证书管理服务 (CAS)
 
-## 快速开始
+## 如何使用
+
+本项目是基于 nekoimi/oss-auto-cert 的自改项目。
+
+如果需要使用的话请自行使用 go build 编译，或者前往 Release 获取二进制文件。
+
+<!-- ## 快速开始
 
 ### 前置要求
 
@@ -32,7 +33,7 @@
 - 具有下列权限的阿里云 RAM 账号：
   - `AliyunOSSFullAccess` - OSS 管理权限
   - `AliyunCDNFullAccess` - CDN 管理权限
-  - `AliyunCASFullAccess` - 证书管理服务权限
+  - `AliyunYundunCertFullAccess` - 证书管理服务权限
 
 ### 1. 准备环境变量
 
@@ -69,7 +70,7 @@ docker run -d --rm \
   -v $PWD/config.yaml:/etc/oss-auto-cert/config.yaml \
   -e OSS_ACCESS_KEY_ID=$OSS_ACCESS_KEY_ID \
   -e OSS_ACCESS_KEY_SECRET=$OSS_ACCESS_KEY_SECRET \
-  ghcr.io/nekoimi/oss-auto-cert:latest
+  ghcr.io/konano/oss-auto-cert:latest
 ```
 
 **或 Docker Compose：**
@@ -78,7 +79,7 @@ docker run -d --rm \
 version: "3.8"
 services:
   oss-auto-cert:
-    image: ghcr.io/nekoimi/oss-auto-cert:latest
+    image: ghcr.io/konano/oss-auto-cert:latest
     volumes:
       - ./config.yaml:/etc/oss-auto-cert/config.yaml
     environment:
@@ -131,7 +132,6 @@ buckets:
 | `ACME_EMAIL` | 证书申请邮箱 | ❌ |
 | `ACME_DATA_DIR` | 证书存储目录 | ❌ |
 | `ACME_EXPIRED_EARLY` | 提前续期天数 | ❌ |
-| `DEBUG` | 调试模式（true/false） | ❌ |
 
 **说明：** 环境变量优先级高于配置文件。
 
@@ -145,9 +145,9 @@ buckets:
 
 | 镜像源 | 地址 |
 |--------|------|
-| Docker Hub | `nekoimi/oss-auto-cert:latest` |
-| GitHub Container Registry | `ghcr.io/nekoimi/oss-auto-cert:latest` |
-| 阿里云（国内） | `registry.cn-hangzhou.aliyuncs.com/nekoimi/oss-auto-cert:latest` |
+| Docker Hub | `konano/oss-auto-cert:latest` |
+| GitHub Container Registry | `ghcr.io/konano/oss-auto-cert:latest` |
+| 阿里云（国内） | `registry.cn-hangzhou.aliyuncs.com/konano/oss-auto-cert:latest` |
 
 **持久化证书：**
 
@@ -157,7 +157,7 @@ docker run -d --rm \
   -v $PWD/certs:/var/lib/oss-auto-cert \
   -e OSS_ACCESS_KEY_ID=xxx \
   -e OSS_ACCESS_KEY_SECRET=xxx \
-  ghcr.io/nekoimi/oss-auto-cert:latest
+  ghcr.io/konano/oss-auto-cert:latest
 ```
 
 ### Systemd 部署
@@ -184,9 +184,4 @@ docker run -d --rm \
 ## 相关项目
 
 - [go-acme/lego](https://github.com/go-acme/lego) - Let's Encrypt ACME 客户端
-- [阿里云 OpenAPI](https://api.aliyun.com)
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/image?repos=nekoimi/oss-auto-cert&type=date&legend=top-left)](https://www.star-history.com/?repos=nekoimi%2Foss-auto-cert&type=date&legend=top-left)
-
+- [阿里云 OpenAPI](https://api.aliyun.com) -->

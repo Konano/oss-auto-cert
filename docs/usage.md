@@ -309,7 +309,7 @@ webhook-tpl: |
 
 - `AliyunOSSFullAccess` - OSS 对象存储管理权限
 - `AliyunCDNFullAccess` - CDN 管理权限
-- `AliyunCASFullAccess` - 证书管理服务权限
+- `AliyunYundunCertFullAccess` - 证书管理服务权限
 
 ## 调试模式
 
