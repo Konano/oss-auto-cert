@@ -62,9 +62,15 @@ func (n *TplWebHook) SendHook(message string) {
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			log.Errorf(err.Error())
+			return
 		}
-		if resp.StatusCode != 200 {
-			raw, _ := io.ReadAll(resp.Body)
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			raw, readErr := io.ReadAll(resp.Body)
+			if readErr != nil {
+				log.Errorf(readErr.Error())
+				return
+			}
 			log.Errorf(string(raw))
 		}
 	}()
