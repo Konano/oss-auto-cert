@@ -133,6 +133,17 @@ webhook-tpl: |
 
 **说明：** 环境变量优先级高于配置文件。
 
+### 命令行参数
+
+```bash
+./oss-auto-cert [参数]
+```
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `-config` | 配置文件路径 | `/etc/oss-auto-cert/config.yaml` |
+| `-log-level` | 日志级别 (debug/info/warn/error) | `info` |
+
 ### Webhook 通知
 
 支持企业微信、钉钉、飞书等，详见 [使用文档](docs/usage.md#webhook-通知配置)。
