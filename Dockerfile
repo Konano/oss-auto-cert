@@ -11,9 +11,9 @@ RUN go build --ldflags "-extldflags -static -s -w" -o oss-auto-cert main.go
 
 FROM alpine:latest
 
-LABEL maintainer="nekoimi <nekoimime@gmail.com>"
+LABEL maintainer="Konano <w@nano.ac>"
 
-COPY --from=builder /build/oss-auto-cert   /usr/bin/oss-auto-cert
+COPY --from=builder /build/oss-auto-cert /usr/bin/oss-auto-cert
 
 RUN apk add --no-cache tzdata \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \

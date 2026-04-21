@@ -6,9 +6,9 @@ import (
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
-	"github.com/nekoimi/oss-auto-cert/internal/config"
-	"github.com/nekoimi/oss-auto-cert/internal/types"
-	"github.com/nekoimi/oss-auto-cert/pkg/utils"
+	"github.com/konano/oss-auto-cert/internal/config"
+	"github.com/konano/oss-auto-cert/internal/types"
+	"github.com/konano/oss-auto-cert/pkg/utils"
 )
 
 type AliYunOss struct {

@@ -47,9 +47,6 @@ export OSS_ACCESS_KEY_SECRET="your-access-key-secret"
 创建 `config.yaml`：
 
 ```yaml
-# 通知 Webhook（可选）
-webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxx
-
 # 证书配置
 acme:
   email: your-email@example.com
@@ -59,6 +56,9 @@ acme:
 buckets:
   - name: my-bucket
     endpoint: oss-cn-hangzhou.aliyuncs.com
+
+# 通知 Webhook（可选）
+webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxx
 ```
 
 ### 3. 运行

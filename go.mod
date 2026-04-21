@@ -1,4 +1,4 @@
-module github.com/nekoimi/oss-auto-cert
+module github.com/konano/oss-auto-cert
 
 go 1.25.0
 

@@ -5,7 +5,7 @@
 ## 项目概述
 
 - **语言**: Go 1.23.0
-- **模块**: `github.com/nekoimi/oss-auto-cert`
+- **模块**: `github.com/konano/oss-auto-cert`
 - **用途**: 基于 Let's Encrypt 实现阿里云 OSS/CDN SSL 证书自动管理
 
 ## 构建命令
@@ -62,8 +62,8 @@ import (
     "github.com/charmbracelet/log"
     "github.com/aliyun/aliyun-oss-go-sdk/oss"
     
-    "github.com/nekoimi/oss-auto-cert/internal/config"
-    "github.com/nekoimi/oss-auto-cert/pkg/utils"
+    "github.com/konano/oss-auto-cert/internal/config"
+    "github.com/konano/oss-auto-cert/pkg/utils"
 )
 ```
 

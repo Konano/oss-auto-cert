@@ -16,9 +16,9 @@ import (
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
-	oss_provider "github.com/nekoimi/oss-auto-cert/internal/acme/providers/oss"
-	"github.com/nekoimi/oss-auto-cert/internal/config"
-	"github.com/nekoimi/oss-auto-cert/pkg/utils"
+	oss_provider "github.com/konano/oss-auto-cert/internal/acme/providers/oss"
+	"github.com/konano/oss-auto-cert/internal/config"
+	"github.com/konano/oss-auto-cert/pkg/utils"
 )
 
 // DefaultSaveDir 默认证书保存目录

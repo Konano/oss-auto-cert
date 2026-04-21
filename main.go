@@ -8,8 +8,8 @@ import (
 	"syscall"
 
 	"github.com/charmbracelet/log"
-	"github.com/nekoimi/oss-auto-cert/internal/cert"
-	"github.com/nekoimi/oss-auto-cert/internal/config"
+	"github.com/konano/oss-auto-cert/internal/cert"
+	"github.com/konano/oss-auto-cert/internal/config"
 )
 
 var (

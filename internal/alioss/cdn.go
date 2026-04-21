@@ -9,7 +9,7 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/charmbracelet/log"
-	"github.com/nekoimi/oss-auto-cert/internal/types"
+	"github.com/konano/oss-auto-cert/internal/types"
 )
 
 type CDNService struct {

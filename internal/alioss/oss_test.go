@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/nekoimi/oss-auto-cert/internal/config"
+	"github.com/konano/oss-auto-cert/internal/config"
 )
 
 func TestBucketService_UpgradeCert(t *testing.T) {
