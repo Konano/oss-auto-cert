@@ -28,55 +28,57 @@ func NewAliYunOss(bucket config.Bucket, access oss.Credentials) (*AliYunOss, err
 	}, nil
 }
 
-// GetCert 获取 Bucket 下自定义域名证书 ID 信息
-func (b *AliYunOss) GetCert() (*types.CertInfo, error) {
+// GetCerts 获取 Bucket 下自定义域名证书 ID 信息
+func (b *AliYunOss) GetCerts() ([]*types.CertInfo, error) {
 	// 获取 Bucket 全部自定义域名列表
 	result, err := b.Client.ListBucketCname(b.name)
 	if err != nil {
 		return nil, fmt.Errorf("获取 Bucket (%s) 下自定义域名列表异常: %w", b.name, err)
 	}
 
-	// TODO Bucket 下自定义域名列表，有多个
 	cnameArr := result.Cname
 	if len(cnameArr) <= 0 {
 		return nil, fmt.Errorf("Bucket (%s) 自定义域名为空，请检查 Bucket 配置", b.name)
 	}
 
-	// 这里先只取第一个
-	cname := cnameArr[0]
-	log.Debugf("处理 Bucket (%s) 自定义域名: %s", b.name, cname.Domain)
-	log.Debugf("Status: %s", cname.Status)
-	log.Debugf("Domain: %s", cname.Domain)
-	log.Debugf("LastModified: %s", cname.LastModified)
+	infos := make([]*types.CertInfo, 0, len(cnameArr))
+	for _, cname := range cnameArr {
+		log.Debugf("处理 Bucket (%s) 自定义域名: %s", b.name, cname.Domain)
+		log.Debugf("Status: %s", cname.Status)
+		log.Debugf("Domain: %s", cname.Domain)
+		log.Debugf("LastModified: %s", cname.LastModified)
 
-	// 检查证书信息
-	cert := cname.Certificate
-	// 域名证书信息
-	log.Debugf("证书信息: %s", cert)
-	log.Debugf("Type: %s", cert.Type)
-	log.Debugf("CertId: %s", cert.CertId)
-	log.Debugf("Status: %s", cert.Status)
-	log.Debugf("CreationDate: %s", cert.CreationDate)
-	log.Debugf("Fingerprint: %s", cert.Fingerprint)
-	log.Debugf("ValidStartDate: %s", cert.ValidStartDate)
-	log.Debugf("ValidEndDate: %s", cert.ValidEndDate)
+		// 检查证书信息
+		cert := cname.Certificate
+		// 域名证书信息
+		log.Debugf("证书信息: %s", cert)
+		log.Debugf("Type: %s", cert.Type)
+		log.Debugf("CertId: %s", cert.CertId)
+		log.Debugf("Status: %s", cert.Status)
+		log.Debugf("CreationDate: %s", cert.CreationDate)
+		log.Debugf("Fingerprint: %s", cert.Fingerprint)
+		log.Debugf("ValidStartDate: %s", cert.ValidStartDate)
+		log.Debugf("ValidEndDate: %s", cert.ValidEndDate)
 
-	certID := cert.CertId
-	if certID == "" {
-		return nil, fmt.Errorf("Bucket (%s) 域名 (%s) 证书信息 ID 为空", b.name, cname.Domain)
+		certID := cert.CertId
+		if certID == "" {
+			return nil, fmt.Errorf("Bucket (%s) 域名 (%s) 证书信息 ID 为空", b.name, cname.Domain)
+		}
+
+		int64Str := utils.SplitFirst(certID, "-")
+		int64ID, err := strconv.ParseInt(int64Str, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		infos = append(infos, &types.CertInfo{
+			ID:     int64ID,
+			Region: utils.SplitGetN(certID, "-", 2, 2),
+			Domain: cname.Domain,
+		})
 	}
 
-	int64Str := utils.SplitFirst(certID, "-")
-	int64ID, err := strconv.ParseInt(int64Str, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.CertInfo{
-		ID:     int64ID,
-		Region: utils.SplitGetN(certID, "-", 2, 2),
-		Domain: cname.Domain,
-	}, nil
+	return infos, nil
 }
 
 // UpgradeCert 更新域名绑定的证书

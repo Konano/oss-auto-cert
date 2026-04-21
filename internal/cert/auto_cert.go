@@ -131,66 +131,68 @@ func (c *AutoCert) run() {
 			continue
 		}
 
-		info, err := b.GetCert()
+		infos, err := b.GetCerts()
 		if err != nil {
 			log.Errorf(err.Error())
 			continue
 		}
 
-		expired, err := c.cas.IsExpired(info.ID)
-		if err != nil {
-			log.Errorf(err.Error())
-			continue
-		}
-
-		if expired {
-			bucketName := bucket.Name
-			domain := info.Domain
-			region := info.Region
-			messagePrefix := fmt.Sprintf("[oss-auto-cert] Bucket <%s> 域名: %s\n", bucketName, domain)
-
-			c.sendMessage(fmt.Sprintf("%s 证书过期，需要更换新证书", messagePrefix))
-
-			// 过期，申请新证书
-			cert, err := c.acme.Obtain(bucketName, domain, b.Client)
+		for _, info := range infos {
+			expired, err := c.cas.IsExpired(info.ID)
 			if err != nil {
 				log.Errorf(err.Error())
 				continue
 			}
 
-			// 上传证书文件到阿里云数字证书管理服务
-			certInfo, err := c.cas.Upload(cert)
-			if err != nil {
-				log.Errorf(err.Error())
-				c.sendMessage(fmt.Sprintf("%s 上传证书到数字证书管理异常: %s", messagePrefix, err.Error()))
-				continue
+			if expired {
+				bucketName := bucket.Name
+				domain := info.Domain
+				region := info.Region
+				messagePrefix := fmt.Sprintf("[oss-auto-cert] Bucket <%s> 域名: %s\n", bucketName, domain)
+
+				c.sendMessage(fmt.Sprintf("%s 证书过期，需要更换新证书", messagePrefix))
+
+				// 过期，申请新证书
+				cert, err := c.acme.Obtain(bucketName, domain, b.Client)
+				if err != nil {
+					log.Errorf(err.Error())
+					continue
+				}
+
+				// 上传证书文件到阿里云数字证书管理服务
+				certInfo, err := c.cas.Upload(cert)
+				if err != nil {
+					log.Errorf(err.Error())
+					c.sendMessage(fmt.Sprintf("%s 上传证书到数字证书管理异常: %s", messagePrefix, err.Error()))
+					continue
+				}
+
+				certInfo.Region = region
+
+				log.Infof("证书上传信息: %s", certInfo)
+
+				go func(bucketName string, domain string, region string, certInfo *types.CertInfo, messagePrefix string) {
+					// 更新 OSS 域名关联的证书
+					err := b.UpgradeCert(domain, fmt.Sprintf("%d-%s", certInfo.ID, region))
+					if err != nil {
+						log.Errorf(err.Error())
+						c.sendMessage(fmt.Sprintf("%s 更新 OSS 域名证书失败: %s", messagePrefix, err.Error()))
+					} else {
+						c.sendMessage(fmt.Sprintf("%s 更新 OSS 域名证书成功，请及时检查证书生效", messagePrefix))
+					}
+				}(bucketName, domain, region, certInfo, messagePrefix)
+
+				go func(domain string, certInfo *types.CertInfo, messagePrefix string) {
+					// 更新 CDN 关联的域名证书
+					err := c.cdn.UpgradeCert(domain, certInfo)
+					if err != nil {
+						log.Errorf(err.Error())
+						c.sendMessage(fmt.Sprintf("%s 更新 CDN 加速域名证书失败: %s", messagePrefix, err.Error()))
+					} else {
+						c.sendMessage(fmt.Sprintf("%s 更新 CDN 加速域名证书成功，请及时检查证书生效", messagePrefix))
+					}
+				}(domain, certInfo, messagePrefix)
 			}
-
-			certInfo.Region = region
-
-			log.Infof("证书上传信息: %s", certInfo)
-
-			go func(bucketName string, domain string, region string, certInfo *types.CertInfo, messagePrefix string) {
-				// 更新 OSS 域名关联的证书
-				err := b.UpgradeCert(domain, fmt.Sprintf("%d-%s", certInfo.ID, region))
-				if err != nil {
-					log.Errorf(err.Error())
-					c.sendMessage(fmt.Sprintf("%s 更新 OSS 域名证书失败: %s", messagePrefix, err.Error()))
-				} else {
-					c.sendMessage(fmt.Sprintf("%s 更新 OSS 域名证书成功，请及时检查证书生效", messagePrefix))
-				}
-			}(bucketName, domain, region, certInfo, messagePrefix)
-
-			go func(domain string, certInfo *types.CertInfo, messagePrefix string) {
-				// 更新 CDN 关联的域名证书
-				err := c.cdn.UpgradeCert(domain, certInfo)
-				if err != nil {
-					log.Errorf(err.Error())
-					c.sendMessage(fmt.Sprintf("%s 更新 CDN 加速域名证书失败: %s", messagePrefix, err.Error()))
-				} else {
-					c.sendMessage(fmt.Sprintf("%s 更新 CDN 加速域名证书成功，请及时检查证书生效", messagePrefix))
-				}
-			}(domain, certInfo, messagePrefix)
 		}
 	}
 }
