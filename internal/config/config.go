@@ -12,7 +12,7 @@ import (
 
 const (
 	DefaultExpiredEarly = 15
-	DefaultConfigPath   = "/etc/oss-auto-cert/config.yaml"
+	DefaultConfigPath   = "./config.yaml"
 )
 
 var (
