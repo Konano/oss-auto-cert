@@ -1,6 +1,7 @@
 package alioss
 
 import (
+	"errors"
 	"fmt"
 
 	cdn20180510 "github.com/alibabacloud-go/cdn-20180510/v5/client"
@@ -42,6 +43,13 @@ func (d *CDNService) IsApplySSL(domain string) (bool, error) {
 
 	resp, err := d.client.DescribeCdnDomainDetail(req)
 	if err != nil {
+		var sdkErr *tea.SDKError
+		if errors.As(err, &sdkErr) {
+			if tea.StringValue(sdkErr.Code) == "InvalidDomain.NotFound" || tea.IntValue(sdkErr.StatusCode) == 404 {
+				log.Warnf("CDN 加速域名 (%s) 不属于当前账号，忽略证书更新", domain)
+				return false, nil
+			}
+		}
 		return false, fmt.Errorf("获取 CDN 加速域名 (%s) 详情异常: %w", domain, err)
 	}
 
