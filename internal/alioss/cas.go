@@ -24,7 +24,7 @@ func NewCasService(access oss.Credentials) *CasService {
 		AccessKeyId:     tea.String(access.GetAccessKeyID()),
 		AccessKeySecret: tea.String(access.GetAccessKeySecret()),
 
-		// endpoint参考：https://api.aliyun.com/product/cas
+		// endpoint 参考：https://api.aliyun.com/product/cas
 		Endpoint: tea.String("cas.aliyuncs.com"),
 	})
 	if err != nil {
@@ -36,17 +36,17 @@ func NewCasService(access oss.Credentials) *CasService {
 	}
 }
 
-// GetDetail 根据DI获取证书详情
+// GetDetail 根据 ID 获取证书详情
 func (s *CasService) GetDetail(certID int64) (*cas20200407.GetUserCertificateDetailResponseBody, error) {
 	request := new(cas20200407.GetUserCertificateDetailRequest)
 	request.SetCertId(certID)
 	resp, err := s.client.GetUserCertificateDetail(request)
 	if err != nil {
-		return nil, fmt.Errorf("获取证书(%d)详情异常: %w", certID, err)
+		return nil, fmt.Errorf("获取证书 (%d) 详情异常: %w", certID, err)
 	}
 
 	if *resp.StatusCode != 200 {
-		return nil, fmt.Errorf("获取证书(%d)详情请求响应异常: 状态码 -> %d；响应: %s", certID, resp.StatusCode, resp)
+		return nil, fmt.Errorf("获取证书 (%d) 详情请求响应异常: 状态码 -> %d；响应: %s", certID, resp.StatusCode, resp)
 	}
 
 	return resp.Body, nil
@@ -60,10 +60,10 @@ func (s *CasService) IsExpired(certID int64) (bool, error) {
 	}
 
 	if *detail.Expired || utils.DateIsExpire(*detail.EndDate, config.GetExpiredEarlyTime()) {
-		log.Warnf("证书(%s, %d)过期，需要更换新证书", *detail.Name, certID)
+		log.Warnf("证书 (%s, %d) 过期，需要更换新证书", *detail.Name, certID)
 		return true, nil
 	} else {
-		log.Infof("证书(%s, %d)未过期，过期日期: %s, 还剩%d天, 将提前%d天过期", *detail.Name, certID, *detail.EndDate,
+		log.Infof("证书 (%s, %d) 未过期，过期日期: %s, 还剩 %d 天, 将提前 %d 天过期", *detail.Name, certID, *detail.EndDate,
 			utils.TimeDiffDay(*detail.EndDate), config.GetExpiredEarlyDay())
 		return false, nil
 	}

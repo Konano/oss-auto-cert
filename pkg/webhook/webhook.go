@@ -34,7 +34,7 @@ func NewTplWebHook(webhook string, webhookTpl string) *TplWebHook {
 	}
 	tpl, err := template.New("webhook").Parse(webhookTpl)
 	if err != nil {
-		log.Fatalf("创建Webhook渲染模版异常: %s", err.Error())
+		log.Fatalf("创建 Webhook 渲染模版异常: %s", err.Error())
 	}
 	return &TplWebHook{
 		webhook: webhook,
@@ -52,7 +52,7 @@ func (n *TplWebHook) SendHook(message string) {
 		var buf bytes.Buffer
 		err := n.tpl.Execute(&buf, data)
 		if err != nil {
-			log.Errorf("渲染Webhook消息异常: %s", err.Error())
+			log.Errorf("渲染 Webhook 消息异常: %s", err.Error())
 			return
 		}
 

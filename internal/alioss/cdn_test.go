@@ -16,7 +16,7 @@ func TestService_UpgradeCert(t *testing.T) {
 
 	credentialsProvider, err := oss.NewEnvironmentVariableCredentialsProvider()
 	if err != nil {
-		t.Fatalf("缺少OSS访问AccessKey环境变量配置: %s", err.Error())
+		t.Fatalf("缺少 OSS 访问 AccessKey 环境变量配置: %s", err.Error())
 	}
 
 	access := credentialsProvider.GetCredentials()

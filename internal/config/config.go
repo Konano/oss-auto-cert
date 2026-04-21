@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	// expiredEarlyDay 提前过期时间点 默认15天
+	// expiredEarlyDay 提前过期时间点 默认 15 天
 	expiredEarlyDay = DefaultExpiredEarly
 	// expiredEarlyTime 提前过期时间
 	expiredEarlyTime = time.Hour * 24 * DefaultExpiredEarly
@@ -30,9 +30,9 @@ type Config struct {
 	Webhook string `yaml:"webhook"`
 	// 通知消息模版
 	WebhookTpl string `yaml:"webhook-tpl"`
-	// Acme配置
+	// Acme 配置
 	Acme Acme `yaml:"acme"`
-	// Bucket配置
+	// Bucket 配置
 	Buckets []Bucket `yaml:"buckets"`
 }
 
@@ -43,13 +43,13 @@ type Acme struct {
 	// 证书保存位置
 	DataDir string `yaml:"data-dir"`
 
-	// 证书提前renew时间
+	// 证书提前 renew 时间
 	ExpiredEarly int `yaml:"expired-early"`
 }
 
-// Bucket OSS存储Bucket配置
+// Bucket OSS 存储 Bucket 配置
 type Bucket struct {
-	// bucket名称
+	// bucket 名称
 	Name string `yaml:"name"`
 	// Endpoint
 	Endpoint string `yaml:"endpoint"`

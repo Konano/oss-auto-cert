@@ -19,7 +19,7 @@ type AliYunOss struct {
 func NewAliYunOss(bucket config.Bucket, access oss.Credentials) (*AliYunOss, error) {
 	client, err := oss.New(bucket.Endpoint, access.GetAccessKeyID(), access.GetAccessKeySecret())
 	if err != nil {
-		return nil, fmt.Errorf("创建oss client异常: %w", err)
+		return nil, fmt.Errorf("创建 OSS Client 异常: %w", err)
 	}
 
 	return &AliYunOss{
@@ -28,23 +28,23 @@ func NewAliYunOss(bucket config.Bucket, access oss.Credentials) (*AliYunOss, err
 	}, nil
 }
 
-// GetCert 获取bucket下自定义域名证书ID信息
+// GetCert 获取 Bucket 下自定义域名证书 ID 信息
 func (b *AliYunOss) GetCert() (*types.CertInfo, error) {
-	// 获取bucket全部自定义域名列表
+	// 获取 Bucket 全部自定义域名列表
 	result, err := b.Client.ListBucketCname(b.name)
 	if err != nil {
-		return nil, fmt.Errorf("获取bucket(%s)下自定义域名列表异常: %w", b.name, err)
+		return nil, fmt.Errorf("获取 Bucket (%s) 下自定义域名列表异常: %w", b.name, err)
 	}
 
-	// TODO bucket下自定义域名列表，有多个
+	// TODO Bucket 下自定义域名列表，有多个
 	cnameArr := result.Cname
 	if len(cnameArr) <= 0 {
-		return nil, fmt.Errorf("bucket(%s)自定义域名为空，请检查bucket配置", b.name)
+		return nil, fmt.Errorf("Bucket (%s) 自定义域名为空，请检查 Bucket 配置", b.name)
 	}
 
 	// 这里先只取第一个
 	cname := cnameArr[0]
-	log.Debugf("处理bucket(%s)自定义域名: %s", b.name, cname.Domain)
+	log.Debugf("处理 Bucket (%s) 自定义域名: %s", b.name, cname.Domain)
 	log.Debugf("Status: %s", cname.Status)
 	log.Debugf("Domain: %s", cname.Domain)
 	log.Debugf("LastModified: %s", cname.LastModified)
@@ -63,7 +63,7 @@ func (b *AliYunOss) GetCert() (*types.CertInfo, error) {
 
 	certID := cert.CertId
 	if certID == "" {
-		return nil, fmt.Errorf("bucket(%s)域名(%s)证书信息ID为空", b.name, cname.Domain)
+		return nil, fmt.Errorf("Bucket (%s) 域名 (%s) 证书信息 ID 为空", b.name, cname.Domain)
 	}
 
 	int64Str := utils.SplitFirst(certID, "-")
@@ -81,7 +81,7 @@ func (b *AliYunOss) GetCert() (*types.CertInfo, error) {
 
 // UpgradeCert 更新域名绑定的证书
 func (b *AliYunOss) UpgradeCert(domain string, certID string) error {
-	log.Debugf("更新域名(%s)证书：%s", domain, certID)
+	log.Debugf("更新域名 (%s) 证书：%s", domain, certID)
 
 	putCname := oss.PutBucketCname{
 		Cname: domain,
@@ -93,10 +93,10 @@ func (b *AliYunOss) UpgradeCert(domain string, certID string) error {
 	}
 	err := b.Client.PutBucketCnameWithCertificate(b.name, putCname)
 	if err != nil {
-		return fmt.Errorf("bucket(%s)更新证书失败：%w", b.name, err)
+		return fmt.Errorf("Bucket (%s) 更新证书失败：%w", b.name, err)
 	}
 
-	log.Infof("OSS自定义域名(%s)证书更新成功! 证书: %s", domain, certID)
+	log.Infof("OSS 自定义域名 (%s) 证书更新成功! 证书: %s", domain, certID)
 
 	return nil
 }

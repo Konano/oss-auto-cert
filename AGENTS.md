@@ -116,6 +116,8 @@ if err != nil {
 - 日志级别: Debug, Info, Warn, Error, Fatal
 - 使用结构化日志: `log.Debugf()`, `log.Infof()`
 - 日志和注释可使用中文（项目约定）
+- 日志文案中 `OSS`/`CDN`/`CAS`/`ACME`/`Bucket` 等缩写与名词需保持规范大小写
+- 中英文之间必须加空格（注释与日志同样适用）
 
 ### 上下文使用
 

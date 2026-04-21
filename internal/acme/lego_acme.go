@@ -49,7 +49,7 @@ func NewLegoAcme(acme config.Acme) *LegoAcme {
 	}
 	c.Certificate.KeyType = certcrypto.RSA2048
 
-	// 创建与CA服务器交互的客户端
+	// 创建与 CA 服务器交互的客户端
 	client, err := lego.NewClient(c)
 	if err != nil {
 		log.Fatalf(err.Error())
@@ -101,7 +101,7 @@ func (lg *LegoAcme) Obtain(bucket string, domain string, ossClient *oss.Client) 
 			Certificate: b,
 		}
 
-		// 尝试读取证书签名CSR
+		// 尝试读取证书签名 CSR
 		localCsr := filepath.Join(lg.saveDir, domain, "cert.csr")
 		ok, b = utils.ReadIfExists(localCsr)
 		if ok {
@@ -120,23 +120,23 @@ func (lg *LegoAcme) Obtain(bucket string, domain string, ossClient *oss.Client) 
 			Bundle: true,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("域名(%s)续签证书失败：%w", domain, err)
+			return nil, fmt.Errorf("域名 (%s) 续签证书失败：%w", domain, err)
 		}
 	} else {
 		// 发起申请请求
 		req := certificate.ObtainRequest{
 			Domains: []string{domain},
-			// 这里如果是true，将把颁发者证书一起返回，也就是返回里面certificates.IssuerCertificate
+			// 这里如果是 true，将把颁发者证书一起返回，也就是返回里面 certificates.IssuerCertificate
 			Bundle: true,
 		}
 		// 申请证书
 		cert, err = lg.client.Certificate.Obtain(req)
 		if err != nil {
-			return nil, fmt.Errorf("域名(%s)申请证书失败：%w", domain, err)
+			return nil, fmt.Errorf("域名 (%s) 申请证书失败：%w", domain, err)
 		}
 	}
 
-	log.Infof("域名(%s)申请证书成功!", domain)
+	log.Infof("域名 (%s) 申请证书成功!", domain)
 
 	// 保存证书到本地
 	go lg.save(cert)

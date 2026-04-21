@@ -33,8 +33,8 @@ func NewCDNService(access oss.Credentials) *CDNService {
 	}
 }
 
-// IsApplySSL 域名是否应用CDN加速SSL
-// 域名CDN有效，SSL有效
+// IsApplySSL 域名是否应用 CDN 加速 SSL
+// 域名 CDN 有效，SSL 有效
 func (d *CDNService) IsApplySSL(domain string) (bool, error) {
 	// 查询加速域名信息
 	req := new(cdn20180510.DescribeCdnDomainDetailRequest)
@@ -42,44 +42,44 @@ func (d *CDNService) IsApplySSL(domain string) (bool, error) {
 
 	resp, err := d.client.DescribeCdnDomainDetail(req)
 	if err != nil {
-		return false, fmt.Errorf("获取CDN加速域名(%s)详情异常: %w", domain, err)
+		return false, fmt.Errorf("获取 CDN 加速域名 (%s) 详情异常: %w", domain, err)
 	}
 
 	if *resp.StatusCode != 200 {
-		return false, fmt.Errorf("获取CDN加速域名(%s)详情请求响应异常: 状态码 -> %d；响应: %s", domain, resp.StatusCode, resp)
+		return false, fmt.Errorf("获取 CDN 加速域名 (%s) 详情请求响应异常: 状态码 -> %d；响应: %s", domain, resp.StatusCode, resp)
 	}
 
-	log.Debugf("CDN加速域名(%s)详情响应: %s", domain, resp)
+	log.Debugf("CDN 加速域名 (%s) 详情响应: %s", domain, resp)
 
 	detail := resp.Body.GetDomainDetailModel
 
 	// 域名状态
 	if *detail.DomainStatus != "online" {
-		log.Infof("CDN加速域名(%s)状态异常: %s", domain, *detail.DomainStatus)
+		log.Infof("CDN 加速域名 (%s) 状态异常: %s", domain, *detail.DomainStatus)
 		return false, nil
 	}
 
 	// 是否开启 SSL 证书
 	if *detail.ServerCertificateStatus != "on" {
-		log.Infof("CDN加速域名(%s)未开启SSL", domain)
+		log.Infof("CDN 加速域名 (%s) 未开启 SSL", domain)
 		return false, nil
 	}
 
 	return true, nil
 }
 
-// UpgradeCert 更新CDN加速域名证书
+// UpgradeCert 更新 CDN 加速域名证书
 func (d *CDNService) UpgradeCert(domain string, info *types.CertInfo) error {
 	if b, err := d.IsApplySSL(domain); err != nil {
 		return err
 	} else if !b {
-		log.Infof("CDN加速域名(%s)为应用SSL加速，忽略证书更换", domain)
+		log.Infof("CDN 加速域名 (%s) 未应用 SSL 加速，忽略证书更换", domain)
 		return nil
 	}
 
-	log.Infof("更新CDN加速域名(%s)SSL证书", domain)
+	log.Infof("更新 CDN 加速域名 (%s) SSL 证书", domain)
 
-	// 需要同步更新CDN加速域名的证书
+	// 需要同步更新 CDN 加速域名的证书
 	req := new(cdn20180510.SetCdnDomainSSLCertificateRequest)
 	req.DomainName = tea.String(domain)
 	req.CertId = tea.Int64(info.ID)
@@ -93,16 +93,16 @@ func (d *CDNService) UpgradeCert(domain string, info *types.CertInfo) error {
 
 	resp, err := d.client.SetCdnDomainSSLCertificate(req)
 	if err != nil {
-		return fmt.Errorf("更新CDN加速域名(%s)证书异常: %w", domain, err)
+		return fmt.Errorf("更新 CDN 加速域名 (%s) 证书异常: %w", domain, err)
 	}
 
 	if *resp.StatusCode != 200 {
-		return fmt.Errorf("更新CDN加速域名(%s)证书请求响应异常: 状态码 -> %d；响应: %s", domain, resp.StatusCode, resp)
+		return fmt.Errorf("更新 CDN 加速域名 (%s) 证书请求响应异常: 状态码 -> %d；响应: %s", domain, resp.StatusCode, resp)
 	}
 
-	log.Debugf("更新CDN加速域名(%s)证书响应: %s", domain, resp)
+	log.Debugf("更新 CDN 加速域名 (%s) 证书响应: %s", domain, resp)
 
-	log.Infof("更新CDN加速域名(%s)证书成功!", domain)
+	log.Infof("更新 CDN 加速域名 (%s) 证书成功!", domain)
 
 	return nil
 }

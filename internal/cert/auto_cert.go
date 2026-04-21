@@ -29,7 +29,7 @@ type AutoCert struct {
 func NewAutoCert(ctx context.Context, conf *config.Config) (*AutoCert, error) {
 	credentialsProvider, err := oss.NewEnvironmentVariableCredentialsProvider()
 	if err != nil {
-		log.Errorf("缺少OSS访问AccessKey环境变量配置: %s", err.Error())
+		log.Errorf("缺少 OSS 访问 AccessKey 环境变量配置: %s", err.Error())
 		return nil, err
 	}
 
@@ -45,10 +45,10 @@ func NewAutoCert(ctx context.Context, conf *config.Config) (*AutoCert, error) {
 	}
 	c.running.Store(false)
 	if len(c.buckets) <= 0 {
-		log.Warnf("OSS存储Bucket配置为空!")
+		log.Warnf("OSS 存储 Bucket 配置为空!")
 	} else {
 		for _, b := range c.buckets {
-			log.Debugf("Bucket开启监测: %s => %s", b.Name, b.Endpoint)
+			log.Debugf("Bucket 开启监测: %s => %s", b.Name, b.Endpoint)
 		}
 	}
 
@@ -85,8 +85,11 @@ func (c *AutoCert) ScheduleRun() {
 		}
 	}()
 
+	go c.run()
+
 	go func() {
 		tick := time.NewTicker(6 * time.Hour)
+		defer tick.Stop()
 		for {
 			select {
 			case <-c.ctx.Done():
@@ -113,7 +116,7 @@ func (c *AutoCert) run() {
 	}()
 
 	for _, bucket := range c.buckets {
-		log.Debugf("开始检测Bucket: %s ...", bucket.Name)
+		log.Debugf("开始检测 Bucket: %s ...", bucket.Name)
 
 		b, err := alioss.NewAliYunOss(bucket, c.access)
 		if err != nil {
@@ -134,7 +137,7 @@ func (c *AutoCert) run() {
 		}
 
 		if expired {
-			messagePrefix := fmt.Sprintf("【oss-auto-cert】Bucket<%s> 域名: %s\n", bucket.Name, info.Domain)
+			messagePrefix := fmt.Sprintf("[oss-auto-cert] Bucket <%s> 域名: %s\n", bucket.Name, info.Domain)
 
 			c.messageCh <- fmt.Sprintf("%s 证书过期，需要更换新证书", messagePrefix)
 
@@ -158,24 +161,24 @@ func (c *AutoCert) run() {
 			log.Infof("证书上传信息: %s", certInfo)
 
 			go func() {
-				// 更新OSS域名关联的证书
+				// 更新 OSS 域名关联的证书
 				err := b.UpgradeCert(info.Domain, fmt.Sprintf("%d-%s", certInfo.ID, info.Region))
 				if err != nil {
 					log.Errorf(err.Error())
-					c.messageCh <- fmt.Sprintf("%s 更新OSS域名证书失败: %s", messagePrefix, err.Error())
+					c.messageCh <- fmt.Sprintf("%s 更新 OSS 域名证书失败: %s", messagePrefix, err.Error())
 				} else {
-					c.messageCh <- fmt.Sprintf("%s 更新OSS域名证书成功，请及时检查证书生效", messagePrefix)
+					c.messageCh <- fmt.Sprintf("%s 更新 OSS 域名证书成功，请及时检查证书生效", messagePrefix)
 				}
 			}()
 
 			go func() {
-				// 更新CDN关联的域名证书
+				// 更新 CDN 关联的域名证书
 				err := c.cdn.UpgradeCert(info.Domain, certInfo)
 				if err != nil {
 					log.Errorf(err.Error())
-					c.messageCh <- fmt.Sprintf("%s 更新CDN加速域名证书失败: %s", messagePrefix, err.Error())
+					c.messageCh <- fmt.Sprintf("%s 更新 CDN 加速域名证书失败: %s", messagePrefix, err.Error())
 				} else {
-					c.messageCh <- fmt.Sprintf("%s 更新CDN加速域名证书成功，请及时检查证书生效", messagePrefix)
+					c.messageCh <- fmt.Sprintf("%s 更新 CDN 加速域名证书成功，请及时检查证书生效", messagePrefix)
 				}
 			}()
 		}
