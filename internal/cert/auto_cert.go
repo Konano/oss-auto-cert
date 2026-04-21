@@ -42,7 +42,7 @@ func NewAutoCert(ctx context.Context, conf *config.Config) (*AutoCert, error) {
 		cas:       alioss.NewCasService(access),
 		cdn:       alioss.NewCDNService(access),
 		acme:      acme.NewLegoAcme(conf.Acme),
-		messageCh: make(chan string),
+		messageCh: make(chan string, 32),
 	}
 	c.running.Store(false)
 	if len(c.buckets) <= 0 {
@@ -70,6 +70,14 @@ func NewAutoCert(ctx context.Context, conf *config.Config) (*AutoCert, error) {
 
 func (c *AutoCert) withMessageHandle(messageHandle func(message string)) {
 	c.messageHandle = messageHandle
+}
+
+func (c *AutoCert) sendMessage(message string) {
+	select {
+	case <-c.ctx.Done():
+		return
+	case c.messageCh <- message:
+	}
 }
 
 func (c *AutoCert) ScheduleRun() {
@@ -141,7 +149,7 @@ func (c *AutoCert) run() {
 			region := info.Region
 			messagePrefix := fmt.Sprintf("[oss-auto-cert] Bucket <%s> 域名: %s\n", bucketName, domain)
 
-			c.messageCh <- fmt.Sprintf("%s 证书过期，需要更换新证书", messagePrefix)
+			c.sendMessage(fmt.Sprintf("%s 证书过期，需要更换新证书", messagePrefix))
 
 			// 过期，申请新证书
 			cert, err := c.acme.Obtain(bucketName, domain, b.Client)
@@ -154,7 +162,7 @@ func (c *AutoCert) run() {
 			certInfo, err := c.cas.Upload(cert)
 			if err != nil {
 				log.Errorf(err.Error())
-				c.messageCh <- fmt.Sprintf("%s 上传证书到数字证书管理异常: %s", messagePrefix, err.Error())
+				c.sendMessage(fmt.Sprintf("%s 上传证书到数字证书管理异常: %s", messagePrefix, err.Error()))
 				continue
 			}
 
@@ -167,9 +175,9 @@ func (c *AutoCert) run() {
 				err := b.UpgradeCert(domain, fmt.Sprintf("%d-%s", certInfo.ID, region))
 				if err != nil {
 					log.Errorf(err.Error())
-					c.messageCh <- fmt.Sprintf("%s 更新 OSS 域名证书失败: %s", messagePrefix, err.Error())
+					c.sendMessage(fmt.Sprintf("%s 更新 OSS 域名证书失败: %s", messagePrefix, err.Error()))
 				} else {
-					c.messageCh <- fmt.Sprintf("%s 更新 OSS 域名证书成功，请及时检查证书生效", messagePrefix)
+					c.sendMessage(fmt.Sprintf("%s 更新 OSS 域名证书成功，请及时检查证书生效", messagePrefix))
 				}
 			}(bucketName, domain, region, certInfo, messagePrefix)
 
@@ -178,9 +186,9 @@ func (c *AutoCert) run() {
 				err := c.cdn.UpgradeCert(domain, certInfo)
 				if err != nil {
 					log.Errorf(err.Error())
-					c.messageCh <- fmt.Sprintf("%s 更新 CDN 加速域名证书失败: %s", messagePrefix, err.Error())
+					c.sendMessage(fmt.Sprintf("%s 更新 CDN 加速域名证书失败: %s", messagePrefix, err.Error()))
 				} else {
-					c.messageCh <- fmt.Sprintf("%s 更新 CDN 加速域名证书成功，请及时检查证书生效", messagePrefix)
+					c.sendMessage(fmt.Sprintf("%s 更新 CDN 加速域名证书成功，请及时检查证书生效", messagePrefix))
 				}
 			}(domain, certInfo, messagePrefix)
 		}
