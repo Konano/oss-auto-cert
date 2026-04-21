@@ -25,3 +25,6 @@ go.work.sum
 .idea
 
 dev.yaml
+
+oss-auto-cert
+config.yaml
