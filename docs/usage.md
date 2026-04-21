@@ -238,6 +238,27 @@ RestartSec=10
 WantedBy=multi-user.target
 ```
 
+或者用户模式：
+
+```ini
+[Unit]
+Description=阿里云 OSS 证书自动化工具
+Documentation=https://github.com/konano/oss-auto-cert
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/bin/
+Environment="OSS_ACCESS_KEY_ID=your-key-id"
+Environment="OSS_ACCESS_KEY_SECRET=your-key-secret"
+ExecStart=/usr/bin/oss-auto-cert
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+```
+
 4. 启动服务：
 
 ```bash
