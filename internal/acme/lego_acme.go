@@ -160,7 +160,7 @@ func (lg *LegoAcme) save(cert *certificate.Resource) {
 		log.Errorf(err.Error())
 		return
 	} else if !exists {
-		err = os.MkdirAll(baseDir, os.ModeDir)
+		err = os.MkdirAll(baseDir, 0700)
 		if err != nil {
 			log.Errorf(err.Error())
 			return
@@ -178,7 +178,11 @@ func (lg *LegoAcme) save(cert *certificate.Resource) {
 		if err := utils.BackupIfExists(filepath.Join(baseDir, name)); err != nil {
 			log.Errorf(err.Error())
 		} else {
-			err = os.WriteFile(filepath.Join(baseDir, name), raw, os.ModePerm)
+			mode := os.FileMode(0600)
+			if name == "cert.crt" || name == "cert-issuer.crt" {
+				mode = 0644
+			}
+			err = os.WriteFile(filepath.Join(baseDir, name), raw, mode)
 			if err != nil {
 				log.Errorf(err.Error())
 			}
