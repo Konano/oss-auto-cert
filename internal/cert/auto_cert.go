@@ -11,6 +11,7 @@ import (
 	"github.com/nekoimi/oss-auto-cert/internal/acme"
 	"github.com/nekoimi/oss-auto-cert/internal/alioss"
 	"github.com/nekoimi/oss-auto-cert/internal/config"
+	"github.com/nekoimi/oss-auto-cert/internal/types"
 	"github.com/nekoimi/oss-auto-cert/pkg/webhook"
 )
 
@@ -135,12 +136,15 @@ func (c *AutoCert) run() {
 		}
 
 		if expired {
-			messagePrefix := fmt.Sprintf("[oss-auto-cert] Bucket <%s> 域名: %s\n", bucket.Name, info.Domain)
+			bucketName := bucket.Name
+			domain := info.Domain
+			region := info.Region
+			messagePrefix := fmt.Sprintf("[oss-auto-cert] Bucket <%s> 域名: %s\n", bucketName, domain)
 
 			c.messageCh <- fmt.Sprintf("%s 证书过期，需要更换新证书", messagePrefix)
 
 			// 过期，申请新证书
-			cert, err := c.acme.Obtain(bucket.Name, info.Domain, b.Client)
+			cert, err := c.acme.Obtain(bucketName, domain, b.Client)
 			if err != nil {
 				log.Errorf(err.Error())
 				continue
@@ -154,31 +158,31 @@ func (c *AutoCert) run() {
 				continue
 			}
 
-			certInfo.Region = info.Region
+			certInfo.Region = region
 
 			log.Infof("证书上传信息: %s", certInfo)
 
-			go func() {
+			go func(bucketName string, domain string, region string, certInfo *types.CertInfo, messagePrefix string) {
 				// 更新 OSS 域名关联的证书
-				err := b.UpgradeCert(info.Domain, fmt.Sprintf("%d-%s", certInfo.ID, info.Region))
+				err := b.UpgradeCert(domain, fmt.Sprintf("%d-%s", certInfo.ID, region))
 				if err != nil {
 					log.Errorf(err.Error())
 					c.messageCh <- fmt.Sprintf("%s 更新 OSS 域名证书失败: %s", messagePrefix, err.Error())
 				} else {
 					c.messageCh <- fmt.Sprintf("%s 更新 OSS 域名证书成功，请及时检查证书生效", messagePrefix)
 				}
-			}()
+			}(bucketName, domain, region, certInfo, messagePrefix)
 
-			go func() {
+			go func(domain string, certInfo *types.CertInfo, messagePrefix string) {
 				// 更新 CDN 关联的域名证书
-				err := c.cdn.UpgradeCert(info.Domain, certInfo)
+				err := c.cdn.UpgradeCert(domain, certInfo)
 				if err != nil {
 					log.Errorf(err.Error())
 					c.messageCh <- fmt.Sprintf("%s 更新 CDN 加速域名证书失败: %s", messagePrefix, err.Error())
 				} else {
 					c.messageCh <- fmt.Sprintf("%s 更新 CDN 加速域名证书成功，请及时检查证书生效", messagePrefix)
 				}
-			}()
+			}(domain, certInfo, messagePrefix)
 		}
 	}
 }
