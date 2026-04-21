@@ -52,7 +52,7 @@ func (n *TplWebHook) SendHook(message string) {
 		var buf bytes.Buffer
 		err := n.tpl.Execute(&buf, data)
 		if err != nil {
-			log.Errorf("渲染 Webhook 消息异常: %s", err.Error())
+			log.Errorf("渲染 Webhook 消息异常: %v", err)
 			return
 		}
 
@@ -61,17 +61,17 @@ func (n *TplWebHook) SendHook(message string) {
 		req.Header.Add("Content-Type", "application/json")
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
-			log.Errorf(err.Error())
+			log.Errorf("%v", err)
 			return
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
 			raw, readErr := io.ReadAll(resp.Body)
 			if readErr != nil {
-				log.Errorf(readErr.Error())
+				log.Errorf("%v", readErr)
 				return
 			}
-			log.Errorf(string(raw))
+			log.Errorf("%s", string(raw))
 		}
 	}()
 }

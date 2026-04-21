@@ -79,7 +79,7 @@ func (conf *Config) LoadOptions() {
 
 	conf.setExpiredEarlyTime()
 
-	log.Debugf("配置文件: %s", conf)
+	log.Debugf("配置文件: %v", conf)
 }
 
 func (conf *Config) LoadOptionsFromEnv() {
@@ -98,7 +98,7 @@ func (conf *Config) LoadOptionsFromEnv() {
 	value = os.Getenv("ACME_EXPIRED_EARLY")
 	if value != "" {
 		if valueInt, err := strconv.Atoi(value); err != nil {
-			log.Warnf(err.Error())
+			log.Warnf("%v", err)
 		} else {
 			conf.Acme.ExpiredEarly = valueInt
 			log.Debugf("set acme (expired early) from env: %d", valueInt)
@@ -106,7 +106,7 @@ func (conf *Config) LoadOptionsFromEnv() {
 		}
 	}
 
-	log.Debugf("配置文件: %s", conf)
+	log.Debugf("配置文件: %v", conf)
 }
 
 func (conf *Config) setExpiredEarlyTime() {

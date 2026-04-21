@@ -14,7 +14,7 @@ import (
 
 var (
 	logLevel string
-	sig      = make(chan os.Signal)
+	sig      = make(chan os.Signal, 1)
 	conf     = new(config.Config)
 )
 

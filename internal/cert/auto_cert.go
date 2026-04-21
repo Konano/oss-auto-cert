@@ -127,20 +127,20 @@ func (c *AutoCert) run() {
 
 		b, err := alioss.NewAliYunOss(bucket, c.access)
 		if err != nil {
-			log.Errorf(err.Error())
+			log.Errorf("%v", err)
 			continue
 		}
 
 		infos, err := b.GetCerts()
 		if err != nil {
-			log.Errorf(err.Error())
+			log.Errorf("%v", err)
 			continue
 		}
 
 		for _, info := range infos {
 			expired, err := c.cas.IsExpired(info.ID)
 			if err != nil {
-				log.Errorf(err.Error())
+				log.Errorf("%v", err)
 				continue
 			}
 
@@ -155,14 +155,14 @@ func (c *AutoCert) run() {
 				// 过期，申请新证书
 				cert, err := c.acme.Obtain(bucketName, domain, b.Client)
 				if err != nil {
-					log.Errorf(err.Error())
+					log.Errorf("%v", err)
 					continue
 				}
 
 				// 上传证书文件到阿里云数字证书管理服务
 				certInfo, err := c.cas.Upload(cert)
 				if err != nil {
-					log.Errorf(err.Error())
+					log.Errorf("%v", err)
 					c.sendMessage(fmt.Sprintf("%s 上传证书到数字证书管理异常: %s", messagePrefix, err.Error()))
 					continue
 				}
@@ -175,7 +175,7 @@ func (c *AutoCert) run() {
 					// 更新 OSS 域名关联的证书
 					err := b.UpgradeCert(domain, fmt.Sprintf("%d-%s", certInfo.ID, region))
 					if err != nil {
-						log.Errorf(err.Error())
+						log.Errorf("%v", err)
 						c.sendMessage(fmt.Sprintf("%s 更新 OSS 域名证书失败: %s", messagePrefix, err.Error()))
 					} else {
 						c.sendMessage(fmt.Sprintf("%s 更新 OSS 域名证书成功，请及时检查证书生效", messagePrefix))
@@ -186,7 +186,7 @@ func (c *AutoCert) run() {
 					// 更新 CDN 关联的域名证书
 					err := c.cdn.UpgradeCert(domain, certInfo)
 					if err != nil {
-						log.Errorf(err.Error())
+						log.Errorf("%v", err)
 						c.sendMessage(fmt.Sprintf("%s 更新 CDN 加速域名证书失败: %s", messagePrefix, err.Error()))
 					} else {
 						c.sendMessage(fmt.Sprintf("%s 更新 CDN 加速域名证书成功，请及时检查证书生效", messagePrefix))

@@ -52,7 +52,7 @@ func NewLegoAcme(acme config.Acme) *LegoAcme {
 	// 创建与 CA 服务器交互的客户端
 	client, err := lego.NewClient(c)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%v", err)
 		return nil
 	}
 
@@ -60,7 +60,7 @@ func NewLegoAcme(acme config.Acme) *LegoAcme {
 		TermsOfServiceAgreed: true,
 	})
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%v", err)
 	}
 
 	user.Registration = reg
@@ -147,7 +147,7 @@ func (lg *LegoAcme) Obtain(bucket string, domain string, ossClient *oss.Client) 
 func (lg *LegoAcme) Stop() {
 	err := lg.client.Registration.DeleteRegistration()
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("%v", err)
 	}
 }
 
@@ -157,12 +157,12 @@ func (lg *LegoAcme) save(cert *certificate.Resource) {
 
 	baseDir := filepath.Join(lg.saveDir, cert.Domain)
 	if exists, err := utils.Exists(baseDir); err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("%v", err)
 		return
 	} else if !exists {
 		err = os.MkdirAll(baseDir, 0700)
 		if err != nil {
-			log.Errorf(err.Error())
+			log.Errorf("%v", err)
 			return
 		}
 	}
@@ -176,7 +176,7 @@ func (lg *LegoAcme) save(cert *certificate.Resource) {
 
 	for name, raw := range data {
 		if err := utils.BackupIfExists(filepath.Join(baseDir, name)); err != nil {
-			log.Errorf(err.Error())
+			log.Errorf("%v", err)
 		} else {
 			mode := os.FileMode(0600)
 			if name == "cert.crt" || name == "cert-issuer.crt" {
@@ -184,7 +184,7 @@ func (lg *LegoAcme) save(cert *certificate.Resource) {
 			}
 			err = os.WriteFile(filepath.Join(baseDir, name), raw, mode)
 			if err != nil {
-				log.Errorf(err.Error())
+				log.Errorf("%v", err)
 			}
 		}
 	}
@@ -211,7 +211,7 @@ func (u *User) GetPrivateKey() crypto.PrivateKey {
 func newUser(email string) *User {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%v", err)
 	}
 
 	return &User{

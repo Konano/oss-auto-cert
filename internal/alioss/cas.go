@@ -28,7 +28,7 @@ func NewCasService(access oss.Credentials) *CasService {
 		Endpoint: tea.String("cas.aliyuncs.com"),
 	})
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%v", err)
 	}
 
 	return &CasService{

@@ -29,7 +29,7 @@ func TestService_UpgradeCert(t *testing.T) {
 	int64Str := utils.SplitFirst(certID, "-")
 	int64ID, err := strconv.ParseInt(int64Str, 10, 64)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%v", err)
 	}
 
 	err = c.UpgradeCert(domain, &types.CertInfo{
@@ -39,6 +39,6 @@ func TestService_UpgradeCert(t *testing.T) {
 		Domain: "",
 	})
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%v", err)
 	}
 }

@@ -25,7 +25,7 @@ func NewCDNService(access oss.Credentials) *CDNService {
 	}
 	client, err := cdn20180510.NewClient(c)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%v", err)
 	}
 
 	return &CDNService{

@@ -45,7 +45,7 @@ func DateIsExpire(dateStr string, aheadHours time.Duration) bool {
 	// 字符串转成时间对象
 	target, err := StrToTime(dateStr)
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("%v", err)
 		return false
 	}
 
@@ -53,7 +53,7 @@ func DateIsExpire(dateStr string, aheadHours time.Duration) bool {
 	// 需要主动转换成 time.DateOnly 格式，避免因为时间导致比较不一致问题
 	target, err = time.Parse(time.DateOnly, target.Format(time.DateOnly))
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("%v", err)
 		return false
 	}
 
@@ -83,7 +83,7 @@ func DateIsExpire(dateStr string, aheadHours time.Duration) bool {
 func TimeDiffDay(s string) int {
 	target, err := StrToTime(s)
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("%v", err)
 		return 0
 	}
 
